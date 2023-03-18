@@ -122,7 +122,7 @@ export function createForm<T extends z.Schema>({
 				if (input) {
 					input.addEventListener('input', (e) => {
 						watch.update((w) => ({ ...w, [key]: (e.target as HTMLInputElement).value }));
-						if (filterValues({ [key]: (e.target as HTMLInputElement).value }))
+						
 							setErrors({ [key]: '' });
 					});
 				}

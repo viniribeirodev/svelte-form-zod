@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/viniribeirodev/svelte-form-zod/2d0babb9fb463b604549ddf9b975cb14665d829d/svelte-forms-zod.svg" width="200px" align="center" alt="Zod logo" />
+  <img src="https://raw.githubusercontent.com/viniribeirodev/svelte-form-zod/2d0babb9fb463b604549ddf9b975cb14665d829d/svelte-form-zod.svg" width="200px" align="center" alt="Zod logo" />
   <h1 align="center">Svelte Form Zod</h1>
   <p align="center">
     🔒 Biblioteca para formulários com SvelteKit e Zod. 🔒  
@@ -13,11 +13,11 @@ Svelte Form Zod é uma biblioteca de formulários para SvelteKit que usa Zod par
 ## Instalação
 
 ```bash
-npm install svelte-forms-zod
+npm install svelte-form-zod
 
 ou
 
-yarn add svelte-forms-zod
+yarn add svelte-form-zod
 ```
 
 ## Como usar
@@ -26,55 +26,55 @@ yarn add svelte-forms-zod
 
 Para criar um formulário, você precisa criar um arquivo `.svelte` e importar a função `createForm` e o `z` do Zod.
 
-```ts
+```svelte
 <script lang="ts">
-	import { createForm, z } from 'svelte-forms-zod'
+	import { createForm, z } from 'svelte-form-zod';
 
 	const schema = z.object({
 		name: z.string().min(3).max(50),
 		email: z.string().email(),
 		password: z.string().min(6).max(50)
-	})
+	});
 
 	const initialValues = {
 		name: '',
 		email: '',
 		password: ''
-	}
+	};
 
 	const onSubmit = (values) => {
-		const { name, email, password } = values
-        console.log(name, email, password)
-	}
+		const { name, email, password } = values;
+		console.log(name, email, password);
+	};
 
 	const { form, errors } = createForm({
 		schema,
 		initialValues,
 		onSubmit
-	})
+	});
 </script>
 
 <form use:form>
 	<label>
-        <input type="text" name='name' />
-        {#if $errors.name}
-            <span>{$errors.name}</span>
-        {/if}
-    </label>
-    <label>
-        <input type="text" name='email' />
-        {#if $errors.email}
-            <span>{$errors.email}</span>
-        {/if}
-    </label>
-    <label>
-        <input type="password" name='password' />
-        {#if $errors.password}
-            <span>{$errors.password}</span>
-        {/if}
-    </label>
+		<input type="text" name="name" />
+		{#if $errors.name}
+			<span>{$errors.name}</span>
+		{/if}
+	</label>
+	<label>
+		<input type="text" name="email" />
+		{#if $errors.email}
+			<span>{$errors.email}</span>
+		{/if}
+	</label>
+	<label>
+		<input type="password" name="password" />
+		{#if $errors.password}
+			<span>{$errors.password}</span>
+		{/if}
+	</label>
 
-    <button type="submit">Enviar</button>
+	<button type="submit">Enviar</button>
 </form>
 ```
 
