@@ -229,3 +229,8 @@ const { form, reset } = createForm({
 
 reset();
 ```
+
+## Autor
+
+| [<img src="https://avatars0.githubusercontent.com/u/32308168?v=3&s=115"><br><sub>@viniribeirodev</sub>](https://github.com/viniribeirodev) |
+| :----------------------------------------------------------------------------------------------------------------------------------------: |

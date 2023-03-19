@@ -54,6 +54,11 @@
 	"keywords": [
 		"svelte",
 		"form",
-		"zod"
-	]
+		"zod",
+		"validation",
+		"typescript",
+		"javascript"
+	],
+	"author": "Vini Ribeiro",
+	"license": "MIT"
 }
