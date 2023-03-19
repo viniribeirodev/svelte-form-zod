@@ -1,9 +1,9 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/viniribeirodev/svelte-form-zod/master/svelte-forms-zod.svg" width="200px" align="center" alt="Zod logo" />
+  <img src="https://raw.githubusercontent.com/viniribeirodev/svelte-form-zod/c86220e09830eba1771d06c7f6727ca96202ed62/svelte-forms-zod.svg" width="200px" align="center" alt="Zod logo" />
   <h1 align="center">Svelte Form Zod</h1>
-  <p align="center">
+</p>
+<p align="center">
     🔒 Biblioteca para formulários com SvelteKit e Zod. 🔒  
-  </p>
 </p>
 
 ## Sobre
