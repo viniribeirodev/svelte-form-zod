@@ -8,9 +8,6 @@
  <a href="https://npm-stat.com/charts.html?package=svelte-form-zod">
     <img src="https://img.shields.io/npm/dm/svelte-form-zod.svg">
   </a>
-  <a href="https://coveralls.io/github/viniribeirodev/svelte-form-zod?branch=master">
-    <img src="https://coveralls.io/repos/github/viniribeirodev/svelte-form-zod/badge.svg?branch=master">
-  </a>
    <a href="https://snyk.io/test/github/viniribeirodev/svelte-form-zod">
     <img src="https://snyk.io/test/github/viniribeirodev/svelte-form-zod/badge.svg" alt="Known Vulnerabilities" data-canonical-src="https://snyk.io/test/github/viniribeirodev/svelte-form-zod" style="max-width:100%;">
   </a>
@@ -169,8 +166,8 @@ updateField('email', 'Email')
 
 ou
 
-<input type="text" bind:value={$watch.name} on:input={() => updateField('name', $watch.name)} />
-<input type="text" bind:value={$watch.email} on:input={() => updateField('email', $watch.email)} />
+<input type="text" on:input={e => updateField('name', e.target.value)} />
+<input type="text" on:input={e => updateField('email', e.target.value)} />
 
 ```
 
@@ -188,9 +185,8 @@ updateFields({ name: 'Name', email: 'Email' })
 
 ou
 
-<input type="text" bind:value={$watch.name} on:input={e => updateFields({ name: e.target.value })} />
-<input type="text" bind:value={$watch.email} on:input={e => updateFields({ email: e.target.value })} />
-
+<input type="text" on:input={e => updateFields({ name: e.target.value })} />
+<input type="text" on:input={e => updateFields({ email: e.target.value })} />
 ```
 
 ## `getValue`
