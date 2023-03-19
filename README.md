@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/viniribeirodev/svelte-form-zod/c86220e09830eba1771d06c7f6727ca96202ed62/svelte-forms-zod.svg" width="200px" align="center" alt="Zod logo" />
+  <img src="https://raw.githubusercontent.com/viniribeirodev/svelte-form-zod/c86220e09830eba1771d06c7f6727ca96202ed62/svelte-forms-zod-b.svg" width="200px" align="center" alt="Zod logo" />
 </p>
 
 <h1 align="center">Svelte Form Zod</h1>
@@ -9,7 +9,7 @@
     <img src="https://img.shields.io/npm/dm/svelte-form-zod.svg">
   </a>
   <a href="https://coveralls.io/github/viniribeirodev/svelte-form-zod?branch=master">
-    <img src="https://coveralls.io/repos/github/viniribeirodev/svelte-form-zod/badge.svg?branch=maste">
+    <img src="https://coveralls.io/repos/github/viniribeirodev/svelte-form-zod/badge.svg?branch=master">
   </a>
    <a href="https://snyk.io/test/github/viniribeirodev/svelte-form-zod">
     <img src="https://snyk.io/test/github/viniribeirodev/svelte-form-zod/badge.svg" alt="Known Vulnerabilities" data-canonical-src="https://snyk.io/test/github/viniribeirodev/svelte-form-zod" style="max-width:100%;">
