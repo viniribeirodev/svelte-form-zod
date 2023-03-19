@@ -9,7 +9,7 @@
     <img src="https://img.shields.io/npm/dm/svelte-form-zod.svg">
   </a>
    <a href="https://snyk.io/test/github/viniribeirodev/svelte-form-zod">
-    <img src="https://snyk.io/test/github/viniribeirodev/svelte-form-zod/badge.svg" alt="Known Vulnerabilities" data-canonical-src="https://snyk.io/test/github/viniribeirodev/svelte-form-zod" style="max-width:100%;">
+    <img src="https://snyk.io/test/github/viniribeirodev/svelte-form-zod/badge.svg" alt="Known Vulnerabilities" data-canonical-src="https://snyk.io/test/github/viniribeirodev/svelte-form-zod" style="max-width:100%">
   </a>
   <a href="https://www.npmjs.com/package/svelte-form-zod">
     <img src="https://badge.fury.io/js/svelte-form-zod.svg">
@@ -56,15 +56,13 @@ Para criar um formulário, você precisa criar um arquivo `.svelte` e importar a
 		password: ''
 	};
 
-	const onSubmit = (values) => {
-		const { name, email, password } = values;
-		console.log(name, email, password);
-	};
-
 	const { form, errors } = createForm({
 		schema,
 		initialValues,
-		onSubmit
+		onSubmit: (values) => {
+			const { name, email, password } = values;
+			console.log(name, email, password);
+		}
 	});
 </script>
 
