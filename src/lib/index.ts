@@ -2,6 +2,7 @@ import { writable, get } from 'svelte/store';
 import z from 'zod';
 
 export type FormValues<T extends z.Schema> = z.infer<T>;
+type FormErrros<T extends z.Schema> = { [key in keyof FormValues<T>]?: string };
 
 export function createForm<T extends z.Schema>({
 	schema,
@@ -12,7 +13,7 @@ export function createForm<T extends z.Schema>({
 	initialValues?: Partial<FormValues<T>>;
 	onSubmit?: (values: FormValues<T>) => void;
 }) {
-	const errors = writable<FormValues<T>>({});
+	const errors = writable<FormErrros<T>>({});
 	const watch = writable<FormValues<T>>({});
 
 	let target: HTMLFormElement | null = null;
@@ -122,8 +123,8 @@ export function createForm<T extends z.Schema>({
 				if (input) {
 					input.addEventListener('input', (e) => {
 						watch.update((w) => ({ ...w, [key]: (e.target as HTMLInputElement).value }));
-						
-							setErrors({ [key]: '' });
+
+						setErrors({ [key]: '' });
 					});
 				}
 			});
@@ -151,7 +152,11 @@ export function createForm<T extends z.Schema>({
 				Object.entries(initialValues).forEach(([key, value]) => {
 					const input = node.querySelector(`[name="${key}"]`) as HTMLInputElement;
 					if (input) {
-						input.value = value as string;
+						if (input.type === 'checkbox') {
+							input.checked = value as boolean;
+						} else {
+							input.value = value as string;
+						}
 						watch.update((w) => ({ ...w, [key]: value }));
 					}
 				});
