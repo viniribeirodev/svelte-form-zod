@@ -12,12 +12,12 @@
     <img src="https://snyk.io/test/github/viniribeirodev/svelte-form-zod/badge.svg" alt="Known Vulnerabilities" data-canonical-src="https://snyk.io/test/github/viniribeirodev/svelte-form-zod" style="max-width:100%">
   </a>
   <a href="https://www.npmjs.com/package/svelte-form-zod">
-    <img src="https://badge.fury.io/js/svelte-form-zod.svg?v=1.0.12">
+    <img src="https://badge.fury.io/js/svelte-form-zod.svg?v=1.0.15">
   </a>
 </p>
 
 <p align="center">
-    🔒 Biblioteca para formulários com SvelteKit e Zod. 🔒  
+    🔒 Biblioteca para formulários com SvelteKit e Zod. 🔒
 </p>
 
 ## Sobre
@@ -47,21 +47,29 @@ Para criar um formulário, você precisa criar um arquivo `.svelte` e importar a
 	const schema = z.object({
 		name: z.string().min(3).max(50),
 		email: z.string().email(),
-		password: z.string().min(6).max(50)
+		password: z.string().min(6).max(50),
+		phone: z.string(),
+		cnpj: z.string()
 	});
 
 	const initialValues = {
 		name: '',
 		email: '',
-		password: ''
+		password: '',
+		phone: '',
+		cnpj: ''
 	};
 
 	const { form, errors } = createForm({
 		schema,
 		initialValues,
+		masked: {
+			phone: '(99) 9999-9999', // ou ['(99) 9999-9999','(99) 9 9999-9999']
+			cnpj: '99.999.999/9999-99'
+		},
 		onSubmit: (values) => {
-			const { name, email, password } = values;
-			console.log(name, email, password);
+			const { name, email, password, phone, cnpj } = values;
+			console.log(name, email, password, phone, cnpj);
 		}
 	});
 </script>
@@ -86,6 +94,20 @@ Para criar um formulário, você precisa criar um arquivo `.svelte` e importar a
 		{/if}
 	</label>
 
+	<label>
+		<input type="text" name="phone" />
+		{#if $errors.phone}
+			<span>{$errors.phone}</span>
+		{/if}
+	</label>
+
+	<label>
+		<input type="text" name="cnpj" />
+		{#if $errors.cnpj}
+			<span>{$errors.cnpj}</span>
+		{/if}
+	</label>
+
 	<button type="submit">Enviar</button>
 </form>
 ```
@@ -107,6 +129,20 @@ Para criar um formulário, você precisa criar um arquivo `.svelte` e importar a
 - <strong>resetErrors</strong> - Função que remove todos os erros de validação do formulário
 - <strong>getValue</strong> - Função que retorna o valor de um campo específico do formulário
 - <strong>getValues</strong> - Função que retorna um objeto com os valores de todos os campos do formulário
+
+## `Masked`
+
+```ts
+const { form } = createForm({
+	schema,
+	initialValues,
+	masked: {
+		phone: '(99) 9999-9999', // ou ['(99) 9999-9999','(99) 9 9999-9999']
+		uf: 'AA'
+	},
+	onSubmit
+});
+```
 
 ## `errors`
 
