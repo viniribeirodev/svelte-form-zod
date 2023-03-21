@@ -57,7 +57,9 @@
 		"zod",
 		"validation",
 		"typescript",
-		"javascript"
+		"javascript",
+		"masked",
+		"input"
 	],
 	"author": "Vini Ribeiro",
 	"license": "MIT"

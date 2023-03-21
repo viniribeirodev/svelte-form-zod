@@ -12,7 +12,7 @@
     <img src="https://snyk.io/test/github/viniribeirodev/svelte-form-zod/badge.svg" alt="Known Vulnerabilities" data-canonical-src="https://snyk.io/test/github/viniribeirodev/svelte-form-zod" style="max-width:100%">
   </a>
   <a href="https://www.npmjs.com/package/svelte-form-zod">
-    <img src="https://badge.fury.io/js/svelte-form-zod.svg?v=1.0.16">
+    <img src="https://badge.fury.io/js/svelte-form-zod.svg?v=1.0.17">
   </a>
 </p>
 
@@ -117,6 +117,7 @@ Para criar um formulário, você precisa criar um arquivo `.svelte` e importar a
 - <strong>schema</strong> - Esquema de validação do formulário
 - <strong>initialValues</strong> - Objeto com os valores iniciais do formulário
 - <strong>onSubmit</strong> - Função que será executada quando o formulário for submetido
+- <strong>masked</strong> - Objeto com os campos que devem ser mascarados
 - <strong>errors</strong> - Objeto com os erros de validação do formulário
 - <strong>watch</strong> - Objeto com os valores dos campos do formulário
 - <strong>form</strong> - Objeto use:form do formulário Svelte
