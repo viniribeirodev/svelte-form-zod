@@ -222,6 +222,45 @@ export function createForm<T extends z.Schema>({
 		}
 	}
 
+	function handlePaste() {
+		if (target) {
+			const formData = new FormData(target as HTMLFormElement);
+
+			formData.forEach((_value, key: FormValues<T>) => {
+				const input = target?.querySelector(`[name="${key}"]`) as HTMLInputElement;
+				if (input) {
+					input.addEventListener('paste', (e) => {
+						if (masked && masked[key]) {
+							const value = mask({
+								value: (e.target as HTMLInputElement).value,
+								pattern: masked[key] || ''
+							});
+							input.value = value;
+							watch.update((w) => ({ ...w, [key]: value }));
+						} else {
+							watch.update((w) => ({ ...w, [key]: (e.target as HTMLInputElement).value }));
+						}
+
+						setErrors({ [key]: '' });
+					});
+				}
+			});
+
+			return {
+				destroy() {
+					formData.forEach((_value, key) => {
+						const input = target?.querySelector(`[name="${key}"]`) as HTMLInputElement;
+						if (input) {
+							input.removeEventListener('paste', (e) => {
+								watch.update((w) => ({ ...w, [key]: (e.target as HTMLInputElement).value }));
+							});
+						}
+					});
+				}
+			};
+		}
+	}
+
 	function form(node: HTMLFormElement) {
 		if (node) {
 			node.addEventListener('submit', handleSubmit);
@@ -240,6 +279,7 @@ export function createForm<T extends z.Schema>({
 				});
 			}
 			handleInput();
+			handlePaste();
 			return {
 				destroy() {
 					node.removeEventListener('submit', handleSubmit), (target = null);
