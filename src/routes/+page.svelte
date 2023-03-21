@@ -1,3 +1,46 @@
-<h1>Welcome to your library project</h1>
-<p>Create your package using @sveltejs/package and preview/showcase your work with SvelteKit</p>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<script lang="ts">
+	import { createForm, z } from '$lib';
+
+	const schema = z.object({
+		name: z.string().min(3).max(20),
+		email: z.string().email(),
+		phone: z.string(),
+		password: z.string().min(6).max(20)
+	});
+
+	const { form, errors } = createForm({
+		schema,
+		masked: { name: 'AAA', phone: ['(99) 9999-9999', '(99) 9 9999-9999'] },
+		onSubmit: async (values) => {
+			console.log(values);
+		}
+	});
+</script>
+
+<form use:form>
+	<label for="name">Name</label>
+	<input type="text" name="name" />
+	{#if $errors.name}
+		<p>{$errors.name}</p>
+	{/if}
+
+	<label for="email">Email</label>
+	<input type="email" name="email" />
+	{#if $errors.email}
+		<p>{$errors.email}</p>
+	{/if}
+
+	<label for="phone">Phone</label>
+	<input type="text" name="phone" />
+	{#if $errors.phone}
+		<p>{$errors.phone}</p>
+	{/if}
+
+	<label for="password">Password</label>
+	<input type="password" name="password" />
+	{#if $errors.password}
+		<p>{$errors.password}</p>
+	{/if}
+
+	<button type="submit">Submit</button>
+</form>
