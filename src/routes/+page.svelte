@@ -5,12 +5,17 @@
 		name: z.string().min(3).max(20),
 		email: z.string().email(),
 		phone: z.string(),
-		password: z.string().min(6).max(20)
+		password: z.string().min(6).max(20),
+		cnpj: z.string()
 	});
 
 	const { form, errors } = createForm({
 		schema,
-		masked: { name: 'AAA', phone: ['(99) 9999-9999', '(99) 9 9999-9999'] },
+		masked: {
+			name: 'AAA',
+			phone: ['(99) 9999-9999', '(99) 9 9999-9999'],
+			cnpj: '99.999.999/9999-99'
+		},
 		onSubmit: async (values) => {
 			console.log(values);
 		}
@@ -40,6 +45,12 @@
 	<input type="password" name="password" />
 	{#if $errors.password}
 		<p>{$errors.password}</p>
+	{/if}
+
+	<label for="cnpj">CNPJ</label>
+	<input type="text" name="cnpj" />
+	{#if $errors.cnpj}
+		<p>{$errors.cnpj}</p>
 	{/if}
 
 	<button type="submit">Submit</button>
