@@ -10,65 +10,81 @@ interface PropsMaskedValue {
 }
 
 function mask({ value, pattern }: PropsMaskedValue) {
-	const LetterRegex = /[A-Za-z]/;
+	const LetterRegex = /[A-Z]/i;
 	const NumberRegex = /[0-9]/;
-	const RemoveSpecialRegex = /[^0-9A-Z]/gi;
+	const specialRegex = /[^0-9A-Z]/gi;
+	const arrPattern = Array.isArray(pattern) ? pattern : [pattern];
+	let formatRegex: string[] = [];
 
-	value = value.replace(RemoveSpecialRegex, '');
+	value = value.replace(specialRegex, '');
+	let arrValue = [...value];
 
-	if (typeof pattern === 'object') {
-		if (pattern.every((p) => p.replace(RemoveSpecialRegex, '').length < value.length)) {
-			pattern = pattern[pattern.length - 1];
+	arrValue.forEach((v) => {
+		if (LetterRegex.test(v)) formatRegex.push('[A-Z]');
+		else if (NumberRegex.test(v)) formatRegex.push('[0-9]');
+	});
+
+	function searchPattern(): string | undefined {
+		const checkPattern = arrPattern.some((p) => {
+			const regex = new RegExp(formatRegex.join(''));
+			if (regex.test(p.replace(specialRegex, ''))) return true;
+			else return false;
+		});
+
+		if (checkPattern) {
+			return arrPattern.find((p) => {
+				const regex = new RegExp(formatRegex.join(''));
+				if (regex.test(p.replace(specialRegex, ''))) return true;
+				else return false;
+			});
 		} else {
-			for (const ptt of pattern) {
-				if (ptt.replace(RemoveSpecialRegex, '').length >= value.length) {
-					pattern = ptt;
-					break;
-				}
-			}
+			if (formatRegex.length > 1) {
+				formatRegex = formatRegex.slice(0, formatRegex.length - 1);
+				return searchPattern();
+			} else return undefined;
 		}
 	}
 
-	const arrayPattern = [...pattern];
-	let arrayValue = [...value];
+	const findPattern = searchPattern();
 
-	arrayValue = arrayValue.slice(0, pattern.toString().replace(RemoveSpecialRegex, '').length);
-
-	arrayPattern.forEach((p, i) => {
-		if (p === 'A') {
-			if (arrayValue[i] !== undefined && LetterRegex.test(arrayValue[i])) {
-				arrayValue[i] = arrayValue[i].toUpperCase();
-			} else if (arrayValue.length) arrayValue[i] = '';
-		} else if (p === 'a') {
-			if (arrayValue[i] !== undefined && LetterRegex.test(arrayValue[i])) {
-				arrayValue[i] = arrayValue[i].toLowerCase();
-			} else if (arrayValue.length) arrayValue[i] = '';
-		} else if (p === 'Z') {
-			if (
-				arrayValue[i] !== undefined &&
-				(LetterRegex.test(arrayValue[i]) || NumberRegex.test(arrayValue[i]))
-			) {
-				arrayValue[i] = arrayValue[i].toUpperCase();
-			} else if (arrayValue.length) arrayValue[i] = '';
-		} else if (p === 'z') {
-			if (
-				arrayValue[i] !== undefined &&
-				(LetterRegex.test(arrayValue[i]) || NumberRegex.test(arrayValue[i]))
-			) {
-				arrayValue[i] = arrayValue[i].toLowerCase();
-			} else if (arrayValue.length) arrayValue[i] = '';
-		} else if (p == '9') {
-			if (arrayValue[i] === undefined || !NumberRegex.test(arrayValue[i])) arrayValue[i] = '';
-		} else {
-			if (value[i] !== undefined) {
-				if (i === 0 && value[0] !== p) arrayValue.unshift(p);
-				else if (value[i] !== p) arrayValue.splice(i, 0, p);
+	if (findPattern) {
+		[...findPattern].forEach((p, i) => {
+			if (p === 'A') {
+				if (arrValue[i] !== undefined && LetterRegex.test(arrValue[i])) {
+					arrValue[i] = arrValue[i].toUpperCase();
+				} else if (arrValue.length) arrValue[i] = '';
+			} else if (p === 'a') {
+				if (arrValue[i] !== undefined && LetterRegex.test(arrValue[i])) {
+					arrValue[i] = arrValue[i].toLowerCase();
+				} else if (arrValue.length) arrValue[i] = '';
+			} else if (p === 'Z') {
+				if (
+					arrValue[i] !== undefined &&
+					(LetterRegex.test(arrValue[i]) || NumberRegex.test(arrValue[i]))
+				) {
+					arrValue[i] = arrValue[i].toUpperCase();
+				} else if (arrValue.length) arrValue[i] = '';
+			} else if (p === 'z') {
+				if (
+					arrValue[i] !== undefined &&
+					(LetterRegex.test(arrValue[i]) || NumberRegex.test(arrValue[i]))
+				) {
+					arrValue[i] = arrValue[i].toLowerCase();
+				} else if (arrValue.length) arrValue[i] = '';
+			} else if (p == '9') {
+				if (arrValue[i] === undefined || !NumberRegex.test(arrValue[i])) arrValue[i] = '';
+			} else {
+				if (arrValue[i] !== undefined) {
+					if (i === 0 && arrValue[0] !== p) arrValue.unshift(p);
+					else if (arrValue[i] !== p) arrValue.splice(i, 0, p);
+				}
 			}
-		}
-		value = arrayValue.join('');
-	});
+		});
 
-	return value;
+		arrValue = arrValue.slice(0, findPattern.length);
+	}
+
+	return arrValue.join('');
 }
 
 export function createForm<T extends z.Schema>({
