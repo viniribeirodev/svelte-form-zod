@@ -34,6 +34,16 @@ function mask({ value, pattern }: PropsMaskedValue) {
 		return value;
 	}
 
+	if (pattern === 'text') {
+		value = value.replace(/\d/g, '');
+		return value;
+	}
+
+	if (pattern === 'number') {
+		value = value.replace(/\D/g, '');
+		return value;
+	}
+
 	value = value.replace(specialRegex, '');
 	let arrValue = [...value];
 

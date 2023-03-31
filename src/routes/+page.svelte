@@ -9,7 +9,8 @@
 		cnpj: z.string(),
 		formats: z.string().min(3).max(20),
 		price: z.number(),
-		date: z.string()
+		date: z.string(),
+		quantity: z.number()
 	});
 
 	const { form, errors } = createForm({
@@ -18,11 +19,13 @@
 			price: 0.0
 		},
 		masked: {
+			name: 'text',
 			phone: ['(99) 9999-9999', '(99) 9 9999-9999'],
 			cnpj: '99.999.999/9999-99',
 			formats: ['A-A', '9-9', '99-99'],
 			price: 'currency',
-			date: 'date'
+			date: 'date',
+			quantity: 'number'
 		},
 		onSubmit: async (values) => {
 			console.log(values);
@@ -85,6 +88,13 @@
 		<input type="text" name="date" />
 		{#if $errors.date}
 			<span class="error">{$errors.date}</span>
+		{/if}
+	</div>
+	<div style="display: flex; flex-direction: column; gap: 1rem;">
+		<label for="formats">Quantity - number</label>
+		<input type="text" name="quantity" />
+		{#if $errors.quantity}
+			<span class="error">{$errors.quantity}</span>
 		{/if}
 	</div>
 	<div>
