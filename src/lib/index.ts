@@ -16,6 +16,24 @@ function mask({ value, pattern }: PropsMaskedValue) {
 	const arrPattern = Array.isArray(pattern) ? pattern : [pattern];
 	let formatRegex: string[] = [];
 
+	if (pattern === 'currency') {
+		value = value.replace(/\D/g, '');
+		value = (Number(value) / 100).toFixed(2) + '';
+		value = value.replace('.', ',');
+		value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+		return value;
+	}
+
+	if (pattern === 'date') {
+		//dd/mm/yyyy
+		value = value.replace(/\D/g, '');
+		value = value.replace(/(\d{2})(\d)/, '$1/$2');
+		value = value.replace(/(\d{2})(\d)/, '$1/$2');
+		value = value.replace(/(\d{4})(\d)/, '$1');
+
+		return value;
+	}
+
 	value = value.replace(specialRegex, '');
 	let arrValue = [...value];
 

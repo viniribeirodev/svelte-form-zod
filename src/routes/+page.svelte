@@ -7,15 +7,22 @@
 		phone: z.string(),
 		password: z.string().min(6).max(20),
 		cnpj: z.string(),
-		formats: z.string().min(3).max(20)
+		formats: z.string().min(3).max(20),
+		price: z.number(),
+		date: z.string()
 	});
 
 	const { form, errors } = createForm({
 		schema,
+		initialValues: {
+			price: 0.0
+		},
 		masked: {
 			phone: ['(99) 9999-9999', '(99) 9 9999-9999'],
 			cnpj: '99.999.999/9999-99',
-			formats: ['A-A', '9-9', '99-99']
+			formats: ['A-A', '9-9', '99-99'],
+			price: 'currency',
+			date: 'date'
 		},
 		onSubmit: async (values) => {
 			console.log(values);
@@ -64,6 +71,20 @@
 		<input type="text" name="formats" />
 		{#if $errors.formats}
 			<span class="error">{$errors.formats}</span>
+		{/if}
+	</div>
+	<div style="display: flex; flex-direction: column; gap: 1rem;">
+		<label for="formats">Price - Currency</label>
+		<input type="text" name="price" />
+		{#if $errors.price}
+			<span class="error">{$errors.price}</span>
+		{/if}
+	</div>
+	<div style="display: flex; flex-direction: column; gap: 1rem;">
+		<label for="formats">Date - date</label>
+		<input type="text" name="date" />
+		{#if $errors.date}
+			<span class="error">{$errors.date}</span>
 		{/if}
 	</div>
 	<div>
