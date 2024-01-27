@@ -1,8 +1,6 @@
 import { writable, get } from 'svelte/store';
 import z from 'zod';
 
-export type FormValues<T extends z.Schema> = z.infer<T>;
-type FormErrros<T extends z.Schema> = { [key in keyof FormValues<T>]?: string };
 
 interface PropsMaskedValue {
 	value: string;
@@ -122,24 +120,24 @@ export function createForm<T extends z.Schema>({
 	masked
 }: {
 	schema?: T;
-	initialValues?: Partial<FormValues<T>>;
-	onSubmit?: (values: FormValues<T>) => void;
-	masked?: { [key in keyof FormValues<T>]?: string | string[] };
+	initialValues?: Partial< z.infer<T>>;
+	onSubmit?: (values:  z.infer<T>) => void;
+	masked?: { [key in keyof  z.infer<T>]?: string | string[] };
 }) {
-	const errors = writable<FormErrros<T>>({});
-	const watch = writable<FormValues<T>>({});
+	const errors = writable<{ [key in keyof  z.infer<T>]?: z.infer<T>[key] }>({});
+	const watch = writable<z.infer<T>>({ ...(initialValues && { ...initialValues }) });
 
 	let target: HTMLFormElement | null = null;
 
 	const handleSubmit = (event: Event) => {
 		event.preventDefault();
 		const formData = new FormData(event.target as HTMLFormElement);
-		const values = Object.fromEntries(formData.entries()) as FormValues<T>;
+		const values = Object.fromEntries(formData.entries()) as  z.infer<T>;
 
 		if (filterValues(values)) onSubmit && onSubmit(get(watch));
 	};
 
-	const filterValues = (values: Partial<FormValues<T>>) => {
+	const filterValues = (values: Partial< z.infer<T>>) => {
 		watch.update((w) => ({ ...w, ...values }));
 
 		const watchValues = get(watch);
@@ -164,7 +162,7 @@ export function createForm<T extends z.Schema>({
 					.reduce((acc, cur) => {
 						acc[cur.path] = cur.message;
 						return acc;
-					}, {} as FormValues<T>);
+					}, {} as  z.infer<T>);
 				errors.set(filterErrors);
 			}
 			return false;
@@ -193,19 +191,19 @@ export function createForm<T extends z.Schema>({
 
 	function updateFields(values: Partial<z.input<T>>) {
 		Object.entries(values).forEach(([key, value]) => {
-			updateField(key as keyof FormValues<T>, value);
+			updateField(key as keyof  z.infer<T>, value);
 		});
 	}
 
-	function setError(key: keyof FormValues<T>, value: any) {
+	function setError(key: keyof  z.infer<T>, value: any) {
 		errors.update((e) => ({ ...e, [key]: value }));
 	}
 
-	function setErrors(values: Partial<FormValues<T>>) {
+	function setErrors(values: Partial< z.infer<T>>) {
 		errors.update((e) => ({ ...e, ...values }));
 	}
 
-	function resetError(key: keyof FormValues<T>) {
+	function resetError(key: keyof  z.infer<T>) {
 		errors.update((e) => {
 			delete e[key];
 			return e;
@@ -218,11 +216,11 @@ export function createForm<T extends z.Schema>({
 
 	function getValues() {
 		const formData = new FormData(target as HTMLFormElement);
-		const values = Object.fromEntries(formData.entries()) as FormValues<T>;
+		const values = Object.fromEntries(formData.entries()) as  z.infer<T>;
 		return values;
 	}
 
-	function getValue(key: keyof FormValues<T>) {
+	function getValue(key: keyof  z.infer<T>) {
 		const values = getValues();
 		return values[key];
 	}
@@ -231,7 +229,7 @@ export function createForm<T extends z.Schema>({
 		if (target) {
 			const formData = new FormData(target as HTMLFormElement);
 
-			formData.forEach((_value, key: FormValues<T>) => {
+			formData.forEach((_value, key:  z.infer<T>) => {
 				const input = target?.querySelector(`[name="${key}"]`) as HTMLInputElement;
 				if (input) {
 					input.addEventListener('input', (e) => {
@@ -270,7 +268,7 @@ export function createForm<T extends z.Schema>({
 		if (target) {
 			const formData = new FormData(target as HTMLFormElement);
 
-			formData.forEach((_value, key: FormValues<T>) => {
+			formData.forEach((_value, key:  z.infer<T>) => {
 				const input = target?.querySelector(`[name="${key}"]`) as HTMLInputElement;
 				if (input) {
 					input.addEventListener('paste', (e) => {
@@ -333,9 +331,9 @@ export function createForm<T extends z.Schema>({
 	}
 
 	const reset = () => {
+		watch.set(initialValues);
 		errors.set({});
 		target?.reset();
-		watch.set({ ...initialValues });
 	};
 
 	return {

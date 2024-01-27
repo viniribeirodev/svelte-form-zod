@@ -10,13 +10,20 @@
 		formats: z.string().min(3).max(20),
 		price: z.number(),
 		date: z.string(),
-		quantity: z.number()
+		quantity: z.number(),
+		units: z.array(
+			z.object({
+				id: z.number(),
+				name: z.string()
+			})
+		)
 	});
 
-	const { form, errors } = createForm({
+	const { form, errors, watch, reset } = createForm({
 		schema,
 		initialValues: {
-			price: 0.0
+			price: 0.0,
+			units: [{ id: 1, name: 'Test name' }]
 		},
 		masked: {
 			name: 'text',
@@ -99,6 +106,7 @@
 	</div>
 	<div>
 		<button type="submit">Submit</button>
+		<button type="button" on:click={() => reset()}>Reset</button>
 	</div>
 </form>
 
