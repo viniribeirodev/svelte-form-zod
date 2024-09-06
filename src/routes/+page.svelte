@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { createForm, z } from '$lib';
-
 	const schema = z.object({
 		name: z.string().min(3).max(20),
 		email: z.string().email(),
@@ -8,22 +7,31 @@
 		password: z.string().min(6).max(20),
 		cnpj: z.string(),
 		formats: z.string().min(3).max(20),
-		price: z.number(),
+		price: z.string(),
 		date: z.string(),
-		quantity: z.number(),
-		units: z.array(
-			z.object({
-				id: z.number(),
-				name: z.string()
+		quantity: z.string(),
+		custom: z.object({
+			person: z.object({
+				name: z.string().min(1, { message: 'Name is required' })
 			})
-		)
+		}),
+		units: z
+			.array(
+				z.object({
+					id: z.number(),
+					name: z.string()
+				})
+			)
+			.default([])
 	});
 
-	const { form, errors, watch, reset } = createForm({
+	const { form, errors, watch, reset, updateField, updateFields } = createForm({
 		schema,
 		initialValues: {
-			price: 0.0,
-			units: [{ id: 1, name: 'Test name' }]
+			name: 'Test name',
+			price: '0.0',
+			units: [{ id: 1, name: 'Test name' }],
+			custom: { person: { name: '' } }
 		},
 		masked: {
 			name: 'text',
@@ -41,11 +49,18 @@
 </script>
 
 <form use:form>
+	{JSON.stringify($watch.custom)}
+	{$errors['custom.person.name']}
 	<div style="display: flex; flex-direction: column; gap: 1rem;">
 		<label for="name">Name</label>
 		<input type="text" name="name" />
 		{#if $errors.name}
 			<span class="error">{$errors.name}</span>
+		{/if}
+		<label for="custom.person.name"> Custom</label>
+		<input type="text" name="custom.person.name" />
+		{#if $errors['custom.person.name']}
+			<span class="error">{$errors['custom.person.name']}</span>
 		{/if}
 	</div>
 	<div style="display: flex; flex-direction: column; gap: 1rem;">

@@ -1,10 +1,29 @@
 import { writable, get } from 'svelte/store';
 import z from 'zod';
 
-
 interface PropsMaskedValue {
 	value: string;
 	pattern: string | string[];
+}
+
+type NestedKeyOf<ObjectType extends object> = {
+	[Key in keyof ObjectType & (string | number)]: ObjectType[Key] extends object
+		? `${Key}` | `${Key}.${NestedKeyOf<ObjectType[Key]>}`
+		: `${Key}`;
+}[keyof ObjectType & (string | number)];
+
+function flattenObject(obj: any, parentKey = '', result: any = {}) {
+	for (let key in obj) {
+		if (obj.hasOwnProperty(key)) {
+			const newKey = parentKey ? `${parentKey}.${key}` : key;
+			if (typeof obj[key] === 'object' && obj[key] !== null) {
+				flattenObject(obj[key], newKey, result);
+			} else {
+				result[newKey] = obj[key];
+			}
+		}
+	}
+	return result;
 }
 
 function mask({ value, pattern }: PropsMaskedValue) {
@@ -120,11 +139,11 @@ export function createForm<T extends z.Schema>({
 	masked
 }: {
 	schema?: T;
-	initialValues?: Partial< z.infer<T>>;
-	onSubmit?: (values:  z.infer<T>) => void;
-	masked?: { [key in keyof  z.infer<T>]?: string | string[] };
+	initialValues?: Partial<z.infer<T>>;
+	onSubmit?: (values: z.infer<T>) => void;
+	masked?: { [key in NestedKeyOf<z.input<T>>]?: string | string[] };
 }) {
-	const errors = writable<{ [key in keyof  z.infer<T>]?: z.infer<T>[key] }>({});
+	const errors = writable<{ [key in NestedKeyOf<z.input<T>>]?: string }>({});
 	const watch = writable<z.infer<T>>({ ...(initialValues && { ...initialValues }) });
 
 	let target: HTMLFormElement | null = null;
@@ -132,20 +151,17 @@ export function createForm<T extends z.Schema>({
 	const handleSubmit = (event: Event) => {
 		event.preventDefault();
 		const formData = new FormData(event.target as HTMLFormElement);
-		const values = Object.fromEntries(formData.entries()) as  z.infer<T>;
+		const values = Object.fromEntries(formData.entries()) as z.infer<T>;
 
 		if (filterValues(values)) onSubmit && onSubmit(get(watch));
 	};
 
-	const filterValues = (values: Partial< z.infer<T>>) => {
+	const filterValues = (values: Partial<z.infer<T>>) => {
 		watch.update((w) => ({ ...w, ...values }));
-
 		const watchValues = get(watch);
 		const parsedValues = schema?.safeParse(watchValues);
-
 		if (parsedValues && parsedValues?.success) {
 			const data = parsedValues.data;
-
 			watch.set(data);
 			return true;
 		} else if (parsedValues && !parsedValues?.success) {
@@ -155,14 +171,14 @@ export function createForm<T extends z.Schema>({
 				const filterErrors = p
 					.map((e) => {
 						return {
-							path: e.path[0],
+							path: e.path.join('.'),
 							message: e.message
 						};
 					})
 					.reduce((acc, cur) => {
 						acc[cur.path] = cur.message;
 						return acc;
-					}, {} as  z.infer<T>);
+					}, {} as z.infer<T>);
 				errors.set(filterErrors);
 			}
 			return false;
@@ -171,39 +187,45 @@ export function createForm<T extends z.Schema>({
 		}
 	};
 
-	function updateField(key: keyof z.input<T>, value: any) {
-		const input = target?.querySelector(`[name="${String(key)}"]`) as HTMLInputElement;
+	function updateField(key: NestedKeyOf<z.input<T>>, value: any) {
+		const keys = key.split('.') as (keyof T)[];
+		const lastKey = keys.pop() as keyof T;
+		let target = get(watch);
+
+		keys.forEach((k) => {
+			if (!target[k]) {
+				target[k] = {};
+			}
+			target = target[k];
+		});
+		target[lastKey] = value;
+		watch.update((w: T) => ({ ...w, ...target }));
+		errors.update((e) => {
+			delete e[key];
+			return e;
+		});
+		const input = document.querySelector(`[name="${key}"]`) as HTMLInputElement;
+
 		if (input) {
 			input.value = value;
-			watch.update((w) => ({ ...w, [key]: value }));
-			errors.update((e) => {
-				delete e[key];
-				return e;
-			});
-		} else {
-			watch.update((w) => ({ ...w, [key]: value }));
-			errors.update((e) => {
-				delete e[key];
-				return e;
-			});
 		}
 	}
 
-	function updateFields(values: Partial<z.input<T>>) {
-		Object.entries(values).forEach(([key, value]) => {
-			updateField(key as keyof  z.infer<T>, value);
+	function updateFields(values: Partial<Record<NestedKeyOf<z.input<T>>, any>>) {
+		Object.entries(flattenObject(values)).forEach(([key, value]) => {
+			updateField(key as NestedKeyOf<z.input<T>>, value);
 		});
 	}
 
-	function setError(key: keyof  z.infer<T>, value: any) {
+	function setError(key: NestedKeyOf<z.input<T>>, value: any) {
 		errors.update((e) => ({ ...e, [key]: value }));
 	}
 
-	function setErrors(values: Partial< z.infer<T>>) {
+	function setErrors(values: Partial<z.infer<T>>) {
 		errors.update((e) => ({ ...e, ...values }));
 	}
 
-	function resetError(key: keyof  z.infer<T>) {
+	function resetError(key: NestedKeyOf<z.input<T>>) {
 		errors.update((e) => {
 			delete e[key];
 			return e;
@@ -216,36 +238,78 @@ export function createForm<T extends z.Schema>({
 
 	function getValues() {
 		const formData = new FormData(target as HTMLFormElement);
-		const values = Object.fromEntries(formData.entries()) as  z.infer<T>;
+		const values = Object.fromEntries(formData.entries()) as z.infer<T>;
 		return values;
 	}
 
-	function getValue(key: keyof  z.infer<T>) {
+	function getValue(key: NestedKeyOf<z.input<T>>) {
 		const values = getValues();
 		return values[key];
 	}
 
+	// function handleInput() {
+	// 	if (target) {
+	// 		const formData = new FormData(target as HTMLFormElement);
+	// 		formData.forEach((_value, key: z.infer<T>) => {
+	// 			const input = target?.querySelector(`[name="${key}"]`) as HTMLInputElement;
+	// 			if (input) {
+	// 				input.addEventListener('input', (e) => {
+	// 					if (masked && masked[key]) {
+	// 						const value = mask({
+	// 							value: (e.target as HTMLInputElement).value,
+	// 							pattern: masked[key] || ''
+	// 						});
+	// 						input.value = value;
+	// 						watch.update((w) => ({ ...w, [key]: value }));
+	// 					} else {
+	// 						watch.update((w) => ({ ...w, [key]: (e.target as HTMLInputElement).value }));
+	// 					}
+
+	// 					setErrors({ [key]: '' });
+	// 				});
+	// 			}
+	// 		});
+
+	// 		return {
+	// 			destroy() {
+	// 				formData.forEach((_value, key) => {
+	// 					const input = target?.querySelector(`[name="${key}"]`) as HTMLInputElement;
+	// 					if (input) {
+	// 						input.removeEventListener('input', (e) => {
+	// 							watch.update((w) => ({ ...w, [key]: (e.target as HTMLInputElement).value }));
+	// 						});
+	// 					}
+	// 				});
+	// 			}
+	// 		};
+	// 	}
+	// }
+
 	function handleInput() {
 		if (target) {
 			const formData = new FormData(target as HTMLFormElement);
-
-			formData.forEach((_value, key:  z.infer<T>) => {
+			formData.forEach((_value, key: z.infer<T>) => {
 				const input = target?.querySelector(`[name="${key}"]`) as HTMLInputElement;
+
 				if (input) {
-					input.addEventListener('input', (e) => {
+					const handleInputEvent = (e: Event) => {
+						const value = (e.target as HTMLInputElement).value;
+
 						if (masked && masked[key]) {
-							const value = mask({
-								value: (e.target as HTMLInputElement).value,
+							const maskedValue = mask({
+								value: value,
 								pattern: masked[key] || ''
 							});
-							input.value = value;
-							watch.update((w) => ({ ...w, [key]: value }));
+							input.value = maskedValue;
+							updateField(key, maskedValue);
 						} else {
-							watch.update((w) => ({ ...w, [key]: (e.target as HTMLInputElement).value }));
+							updateField(key, value);
 						}
-
 						setErrors({ [key]: '' });
-					});
+					};
+
+					input.addEventListener('input', handleInputEvent);
+					input.dataset.handleInputEvent = handleInputEvent.toString();
 				}
 			});
 
@@ -268,7 +332,7 @@ export function createForm<T extends z.Schema>({
 		if (target) {
 			const formData = new FormData(target as HTMLFormElement);
 
-			formData.forEach((_value, key:  z.infer<T>) => {
+			formData.forEach((_value, key: z.infer<T>) => {
 				const input = target?.querySelector(`[name="${key}"]`) as HTMLInputElement;
 				if (input) {
 					input.addEventListener('paste', (e) => {
